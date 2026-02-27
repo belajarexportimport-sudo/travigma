@@ -816,6 +816,7 @@ function ticketHeader(bookingId, dateIssuedRaw, extraRows = '') {
   const dateValue = dateIssuedRaw || new Date().toISOString().split('T')[0];
   const fmtIssued = fmtDate(dateValue) || today();
   return `
+  <div class="t-watermark">${LOGO_IMG}</div>
   <div class="ticket-inner">
     <div class="t-header">
       <div>
@@ -935,31 +936,32 @@ function buildInvoiceTicket() {
   const items = [];
   document.querySelectorAll('[id^="pax-name-"]').forEach(el => {
     const n = el.id.split('-').pop();
-    if (!document.getElementById(`pax-${n}`)) return;
+    if (!document.getElementById(`pax - ${n} `)) return;
     items.push({
-      name: gv(`pax-name-${n}`),
-      carrier: gv(`pax-carrier-${n}`),
-      ticket: gv(`pax-ticket-${n}`),
-      date: gv(`pax-date-${n}`),
-      price: parseFloat(gv(`pax-price-${n}`)) || 0
+      name: gv(`pax - name - ${n} `),
+      carrier: gv(`pax - carrier - ${n} `),
+      ticket: gv(`pax - ticket - ${n} `),
+      date: gv(`pax - date - ${n} `),
+      price: parseFloat(gv(`pax - price - ${n} `)) || 0
     });
   });
 
   const total = items.reduce((sum, it) => sum + it.price, 0);
 
   let rowsHtml = items.map((it, i) => `
-    <tr>
+    < tr >
       <td>${i + 1}</td>
       <td>${it.name}</td>
       <td>${it.carrier}</td>
       <td>${it.ticket}</td>
       <td>${it.date}</td>
       <td style="text-align:right">Rp ${formatCurrency(it.price)}</td>
-    </tr>
-  `).join('');
+    </tr >
+    `).join('');
 
   return `
   <div class="ticket-page">
+    <div class="t-watermark">${LOGO_IMG}</div>
     <div class="ticket-inner">
       <div class="t-header">
         <div>
