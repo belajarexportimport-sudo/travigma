@@ -949,26 +949,209 @@ body {
   }
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 640px) {
+/* ===== RESPONSIVE & MOBILE OPTIMIZATION ===== */
+@media (max-width: 768px) {
+  :root {
+    --radius: 10px;
+  }
+
+  .app-header {
+    padding: 32px 16px 20px;
+  }
+
+  .logo-circle {
+    width: 70px;
+    height: 70px;
+  }
+
+  .brand-name {
+    font-size: 1.6rem;
+  }
+
   .type-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .type-card {
+    padding: 20px;
   }
 
+  .form-header {
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .form-header-brand {
+    order: -1;
+    width: calc(100% - 100px);
+  }
+
+  .back-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  .preview-btn {
+    width: 100%;
+    border-radius: 6px;
+  }
+
+  .form-body {
+    padding: 16px;
+  }
+
+  .form-grid,
   .form-grid.cols-3 {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .passenger-row {
-    grid-template-columns: 1fr 1fr 32px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    position: relative;
+  }
+
+  .passenger-row .remove-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .passenger-row .form-group {
+    width: 100%;
+  }
+
+  .leg-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  /* Ticket Preview Scaling */
+  .preview-toolbar {
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .toolbar-actions button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.75rem;
   }
 
   .ticket-page {
     width: 100%;
     margin: 0;
+    transform-origin: top center;
+    /* We don't scale the content down to unreadability, 
+       instead we let the page width be 100% and hope the internal content flows.
+       However, the internal A4 logic might still be tight. */
+  }
+
+  .ticket-inner {
+    padding: 20px 16px;
+  }
+
+  .t-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .t-logo-area {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .t-headline {
+    text-align: left;
+    width: 100%;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
+
+  .t-leg-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .t-leg-airline {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+  }
+
+  .t-leg-route {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .t-leg-arrow {
+    transform: rotate(90deg);
+    align-self: center;
+    margin: -5px 0;
+  }
+
+  /* Table Responsiveness in Ticket */
+  .t-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .t-table thead th,
+  .t-table tbody td {
+    white-space: nowrap;
+    min-width: 80px;
+  }
+
+  .t-payment {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .t-payment .pay-amount {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-name {
+    font-size: 1.4rem;
+  }
+
+  .history-header h3 {
+    font-size: 0.85rem;
+  }
+
+  .history-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .history-card>div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 10px;
+    margin-top: 4px;
   }
 }
