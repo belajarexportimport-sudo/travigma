@@ -1039,6 +1039,18 @@ function collectPassengers(hasId = true, hasClass = false, hasSeat = false) {
   return passengers;
 }
 
+function collectFacilities() {
+  const facs = [];
+  const rows = document.querySelectorAll('[id^="fac-text-"]');
+  rows.forEach(el => {
+    const n = el.id.split('-').pop();
+    if (!document.getElementById(`fac-${n}`)) return;
+    const val = gv(`fac-text-${n}`).trim();
+    if (val) facs.push(val);
+  });
+  return facs;
+}
+
 // ── Google Sheets Sync Logic ──────────────────────────────────────────────────
 
 async function pushToSheet() {
