@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travigma – Itinerary E-ticket Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ===================== APP WRAPPER ===================== -->
+  <div id="app">
+
+    <!-- ===== SCREEN: HOME ===== -->
+    <div id="screen-home" class="screen active">
+      <header class="app-header">
+        <div class="logo-wrap">
+          <div class="logo-circle">
+            <img src="logo.png" width="90" height="90" alt="Travigma Logo">
+          </div>
+          <div class="brand-name">Trav<span>igma</span><sup>®</sup></div>
+        </div>
+        <p class="app-subtitle">Internal Itinerary E-ticket Generator</p>
+      </header>
+
+      <main class="home-main">
+        <h2>Pilih Jenis Tiket</h2>
+        <div class="type-grid">
+          <button class="type-card" onclick="selectType('flight')">
+            <div class="type-icon">✈️</div>
+            <div class="type-label">Flight</div>
+            <div class="type-desc">Penerbangan domestik &amp; internasional</div>
+          </button>
+          <button class="type-card" onclick="selectType('train')">
+            <div class="type-icon">🚆</div>
+            <div class="type-label">Train</div>
+            <div class="type-desc">Kereta Api (KAI)</div>
+          </button>
+          <button class="type-card" onclick="selectType('bus')">
+            <div class="type-icon">🚌</div>
+            <div class="type-label">Bus</div>
+            <div class="type-desc">Bus / Travel / Shuttle</div>
+          </button>
+          <button class="type-card" onclick="selectType('hotel')">
+            <div class="type-icon">🏨</div>
+            <div class="type-label">Hotel</div>
+            <div class="type-desc">Voucher penginapan</div>
+          </button>
+          <button class="type-card" onclick="selectType('invoice')" style="grid-column: 1 / -1;">
+            <div class="type-icon">🧾</div>
+            <div class="type-label">Invoice</div>
+            <div class="type-desc">Invoice tagihan perjalanan ke klien</div>
+          </button>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        PT. Enigma Agility Indonesia &nbsp;|&nbsp; Jl. Cendana III No. 26 Cipondoh, Kota Tangerang 15148
+      </footer>
+    </div>
+
+    <!-- ===== SCREEN: FORM ===== -->
+    <div id="screen-form" class="screen">
+      <header class="form-header">
+        <button class="back-btn" onclick="goHome()">← Kembali</button>
+        <div class="form-header-brand">
+          <div class="logo-circle sm">
+            <img src="logo.png" width="44" height="44" alt="Travigma Logo">
+          </div>
+          <span id="form-title">E-ticket Form</span>
+        </div>
+        <button class="preview-btn" onclick="generateTicket()">Preview Tiket →</button>
+      </header>
+
+      <div class="form-body">
+        <!-- Dynamic form will be injected here by JS -->
+        <div id="form-container"></div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN: PREVIEW / PRINT ===== -->
+    <div id="screen-preview" class="screen">
+      <div class="preview-toolbar no-print">
+        <button class="back-btn" onclick="showFormScreen()">← Edit</button>
+        <span class="preview-label">Preview E-ticket</span>
+        <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+      </div>
+
+      <!-- This is the printable area -->
+      <div id="ticket-output" class="ticket-page"></div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <script src="app.js"></script>
+</body>
+
+</html>
