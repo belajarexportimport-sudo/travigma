@@ -57,6 +57,16 @@
             <div class="type-desc">Invoice tagihan perjalanan ke klien</div>
           </button>
         </div>
+
+        <section class="history-section">
+          <div class="history-header">
+            <h3>📅 Riwayat & Cloud Data</h3>
+            <button class="refresh-btn" onclick="pullFromSheet()" title="Refresh Data">🔄 Refresh</button>
+          </div>
+          <div id="history-list" class="history-list">
+            <div class="loading-state">Klik 'Refresh' untuk mengambil data cloud...</div>
+          </div>
+        </section>
       </main>
 
       <footer class="app-footer">
@@ -88,7 +98,10 @@
       <div class="preview-toolbar no-print">
         <button class="back-btn" onclick="showFormScreen()">← Edit</button>
         <span class="preview-label">Preview E-ticket</span>
-        <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <div class="toolbar-actions">
+          <button class="save-cloud-btn" id="save-cloud-btn" onclick="pushToSheet()">☁️ Simpan ke Cloud</button>
+          <button class="print-btn" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        </div>
       </div>
 
       <!-- This is the printable area -->

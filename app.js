@@ -10,6 +10,8 @@ let passengerCount = 1;
 let legCount = 1;
 let facilityCount = 1;
 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzXAq09hoVAhPz0qAjyK4HgKLJFmpQMQn4KHeRri1m5TJ1EOj3DzVyBMBnebca7gBl1Zw/exec";
+
 // ── Utilities ─────────────────────────────────────────────────────────────────
 function genBookingId() {
   const now = new Date();
@@ -50,11 +52,51 @@ function getLogoHtml(width = 70) {
 const LOGO_IMG = getLogoHtml(70);
 const LOGO_SM_IMG = getLogoHtml(44);
 
+// ── Airline Logo Helper ─────────────────────────────────────────────────────
+const AIRLINE_MAP = {
+  'garuda': 'garuda-indonesia.com',
+  'lion': 'lionair.co.id',
+  'batik': 'batikair.com',
+  'citilink': 'citilink.co.id',
+  'airasia': 'airasia.com',
+  'sriwijaya': 'sriwijayaair.co.id',
+  'super air jet': 'superairjet.com',
+  'pelita': 'pelita-air.com',
+  'nam': 'namair.co.id',
+  'wings': 'lionair.co.id',
+  'qatar': 'qatarairways.com',
+  'emirates': 'emirates.com',
+  'singapore': 'singaporeair.com',
+  'cathay': 'cathaypacific.com',
+  'ana': 'ana.co.jp',
+  'jal': 'jal.co.jp'
+};
+
+function getAirlineLogo(airline) {
+  if (!airline) return '';
+  const low = airline.toLowerCase();
+  let domain = null;
+  for (const key in AIRLINE_MAP) {
+    if (low.includes(key)) {
+      domain = AIRLINE_MAP[key];
+      break;
+    }
+  }
+
+  if (domain) {
+    return `<div class="airline-logo-box">
+      <img src="https://logo.clearbit.com/${domain}" alt="${airline}" onerror="this.parentElement.style.display='none'">
+    </div>`;
+  }
+  return '';
+}
+
 
 // ── Screen Navigation ──────────────────────────────────────────────────────────
 function goHome() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-home').classList.add('active');
+  pullFromSheet(); // Auto-load history when returning home
 }
 
 function showFormScreen() {
@@ -997,14 +1039,364 @@ function collectPassengers(hasId = true, hasClass = false, hasSeat = false) {
   return passengers;
 }
 
-function collectFacilities() {
-  const facs = [];
-  document.querySelectorAll('[id^="fac-text-"]').forEach(el => {
-    const v = el.value.trim();
-    if (v) facs.push(v);
-  });
-  return facs;
+// ── Google Sheets Sync Logic ──────────────────────────────────────────────────
+
+async function pushToSheet() {
+  const btn = document.getElementById('save-cloud-btn');
+  if (btn.classList.contains('syncing')) return;
+
+  const data = collectFullFormData();
+  const payload = {
+    id: data.id,
+    type: currentType,
+    client: data.client,
+    amount: data.amount,
+    fullData: data
+  };
+
+  try {
+    btn.innerHTML = "⏳ Menyimpa...";
+    btn.classList.add('syncing');
+
+    const response = await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    const res = await response.json();
+    if (res.status === "success") {
+      btn.innerHTML = "✅ Tersimpan!";
+      setTimeout(() => {
+        btn.innerHTML = "☁️ Simpan ke Cloud";
+        btn.classList.remove('syncing');
+      }, 3000);
+    } else {
+      throw new Error(res.message);
+    }
+  } catch (err) {
+    console.error("DEBUG - PUSH ERROR:", err);
+    btn.innerHTML = "❌ Gagal Simpan";
+    alert("Gagal simpan ke cloud: " + err.message);
+    setTimeout(() => {
+      btn.innerHTML = "☁️ Simpan ke Cloud";
+      btn.classList.remove('syncing');
+    }, 3000);
+  }
 }
+
+console.log("TRAVIGMA - App Logic Loaded Successfully");
+console.log("GAS_URL:", GAS_URL);
+
+async function pullFromSheet() {
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<div class="loading-state">Mengambil data dari cloud...</div>';
+
+  try {
+    const response = await fetch(GAS_URL);
+    const data = await response.json();
+
+    if (!data || data.length === 0) {
+      list.innerHTML = '<div class="loading-state">Belum ada riwayat data.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    data.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      const date = new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+      card.innerHTML = `
+        <div class="history-info">
+          <div class="history-id">${item.id}</div>
+          <div class="history-meta">${item.client || 'No Name'} | ${date}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="history-type">${item.type}</div>
+          <div style="font-size:11px; font-weight:700; margin-top:4px;">Rp ${formatCurrency(item.amount)}</div>
+        </div>
+      `;
+      card.onclick = () => loadFromCloud(item.fullData, item.type);
+      list.appendChild(card);
+    });
+  } catch (err) {
+    list.innerHTML = '<div class="loading-state" style="color:#ef4444">Gagal mengambil data: ' + err.message + '</div>';
+  }
+}
+
+function loadFromCloud(data, type) {
+  selectType(type);
+
+  // Wait for form to render then populate
+  setTimeout(() => {
+    if (type === 'flight') {
+      document.getElementById('f-booking-id').value = data.id;
+      document.getElementById('f-date-issued').value = data.dateIssued;
+      document.getElementById('f-pnr').value = data.pnr;
+      document.getElementById('f-pnr-return').value = data.pnrReturn;
+      document.getElementById('f-total').value = data.amount;
+      document.getElementById('f-important').value = data.important;
+
+      // Clear defaults before adding
+      document.getElementById('passenger-list').innerHTML = '';
+      data.passengers.forEach((p, i) => {
+        addPassenger('flight');
+        const idx = i + 1;
+        document.getElementById(`pax-name-${idx}`).value = p.name;
+        document.getElementById(`pax-cat-${idx}`).value = p.cat;
+        document.getElementById(`pax-class-${idx}`).value = p.cls;
+        document.getElementById(`pax-ticket-${idx}`).value = p.ticket;
+      });
+
+      document.getElementById('leg-list').innerHTML = '';
+      data.legs.forEach((l, i) => {
+        addLeg();
+        const idx = i + 1;
+        document.getElementById(`leg-airline-${idx}`).value = l.airline;
+        document.getElementById(`leg-flightnum-${idx}`).value = l.flightNum;
+        document.getElementById(`leg-baggage-${idx}`).value = l.baggage;
+        document.getElementById(`leg-from-city-${idx}`).value = l.fromCity;
+        document.getElementById(`leg-to-city-${idx}`).value = l.toCity;
+        document.getElementById(`leg-from-airport-${idx}`).value = l.fromAirport;
+        document.getElementById(`leg-to-airport-${idx}`).value = l.toAirport;
+        document.getElementById(`leg-from-iata-${idx}`).value = l.fromIata;
+        document.getElementById(`leg-to-iata-${idx}`).value = l.toIata;
+        document.getElementById(`leg-dep-time-${idx}`).value = l.depTime;
+        document.getElementById(`leg-arr-time-${idx}`).value = l.arrTime;
+        document.getElementById(`leg-dep-date-${idx}`).value = l.depDate;
+        document.getElementById(`leg-arr-date-${idx}`).value = l.arrDate;
+      });
+    }
+    else if (type === 'invoice') {
+      document.getElementById('inv-idx').value = data.id;
+      document.getElementById('inv-date').value = data.date;
+      document.getElementById('inv-to').value = data.client;
+      document.getElementById('inv-bank-name').value = data.bankName;
+      document.getElementById('inv-bank-acc').value = data.bankAcc;
+      document.getElementById('inv-sign-name').value = data.signName;
+
+      document.getElementById('passenger-list').innerHTML = '';
+      data.items.forEach((it, i) => {
+        addPassenger('invoice');
+        const idx = i + 1;
+        document.getElementById(`pax-name-${idx}`).value = it.name;
+        document.getElementById(`pax-carrier-${idx}`).value = it.carrier;
+        document.getElementById(`pax-ticket-${idx}`).value = it.ticket;
+        document.getElementById(`pax-date-${idx}`).value = it.date;
+        document.getElementById(`pax-price-${idx}`).value = it.price;
+      });
+    }
+    else if (type === 'train') {
+      document.getElementById('t-booking-id').value = data.id;
+      document.getElementById('t-date-issued').value = data.dateIssued;
+      document.getElementById('t-ecode').value = data.ecode;
+      document.getElementById('t-from-city').value = data.fromCity;
+      document.getElementById('t-to-city').value = data.toCity;
+      document.getElementById('t-train-name').value = data.trainName;
+      document.getElementById('t-class').value = data.trainClass;
+      document.getElementById('t-from-station').value = data.fromStation;
+      document.getElementById('t-to-station').value = data.toStation;
+      document.getElementById('t-dep-time').value = data.depTime;
+      document.getElementById('t-arr-time').value = data.arrTime;
+      document.getElementById('t-dep-date').value = data.depDate;
+      document.getElementById('t-arr-date').value = data.arrDate;
+      document.getElementById('t-total').value = data.amount;
+      document.getElementById('t-important').value = data.important;
+
+      document.getElementById('passenger-list').innerHTML = '';
+      data.passengers.forEach((p, i) => {
+        addPassenger('train');
+        const idx = i + 1;
+        document.getElementById(`pax-name-${idx}`).value = p.name;
+        document.getElementById(`pax-cat-${idx}`).value = p.cat;
+        document.getElementById(`pax-seat-${idx}`).value = p.seat;
+        document.getElementById(`pax-id-${idx}`).value = p.id;
+      });
+    }
+    else if (type === 'bus') {
+      document.getElementById('b-booking-id').value = data.id;
+      document.getElementById('b-date-issued').value = data.dateIssued;
+      document.getElementById('b-ecode').value = data.ecode;
+      document.getElementById('b-from-city').value = data.fromCity;
+      document.getElementById('b-to-city').value = data.toCity;
+      document.getElementById('b-operator').value = data.operator;
+      document.getElementById('b-class').value = data.busClass;
+      document.getElementById('b-from-terminal').value = data.fromTerminal;
+      document.getElementById('b-to-terminal').value = data.toTerminal;
+      document.getElementById('b-dep-time').value = data.depTime;
+      document.getElementById('b-arr-time').value = data.arrTime;
+      document.getElementById('b-dep-date').value = data.depDate;
+      document.getElementById('b-total').value = data.amount;
+      document.getElementById('b-important').value = data.important;
+
+      document.getElementById('passenger-list').innerHTML = '';
+      data.passengers.forEach((p, i) => {
+        addPassenger('bus');
+        const idx = i + 1;
+        document.getElementById(`pax-name-${idx}`).value = p.name;
+        document.getElementById(`pax-cat-${idx}`).value = p.cat;
+        document.getElementById(`pax-seat-${idx}`).value = p.seat;
+        document.getElementById(`pax-id-${idx}`).value = p.id;
+      });
+    }
+    else if (type === 'hotel') {
+      document.getElementById('h-booking-id').value = data.id;
+      document.getElementById('h-date-issued').value = data.dateIssued;
+      document.getElementById('h-ref').value = data.ref;
+      document.getElementById('h-name').value = data.name;
+      document.getElementById('h-address').value = data.address;
+      document.getElementById('h-city').value = data.city;
+      document.getElementById('h-room-type').value = data.roomType;
+      document.getElementById('h-room-count').value = data.roomCount;
+      document.getElementById('h-meal-plan').value = data.mealPlan;
+      document.getElementById('h-checkin').value = data.checkin;
+      document.getElementById('h-checkout').value = data.checkout;
+      document.getElementById('h-nights').value = data.nights;
+      document.getElementById('h-phone').value = data.phone;
+      document.getElementById('h-total').value = data.amount;
+      document.getElementById('h-important').value = data.important;
+
+      document.getElementById('passenger-list').innerHTML = '';
+      data.passengers.forEach((p, i) => {
+        addPassenger('hotel');
+        const idx = i + 1;
+        document.getElementById(`pax-name-${idx}`).value = p.name;
+        document.getElementById(`pax-cat-${idx}`).value = p.cat;
+      });
+    }
+  }, 100);
+}
+
+function collectFullFormData() {
+  if (currentType === 'flight') {
+    return {
+      id: gv('f-booking-id'),
+      dateIssued: gv('f-date-issued'),
+      pnr: gv('f-pnr'),
+      pnrReturn: gv('f-pnr-return'),
+      amount: gv('f-total'),
+      client: (collectPassengers(false)[0]?.name || 'N/A'),
+      passengers: collectPassengers(false, true, false),
+      legs: Array.from(document.querySelectorAll('.leg-card')).map(card => {
+        const n = card.id.split('-').pop();
+        return {
+          airline: gv(`leg-airline-${n}`),
+          flightNum: gv(`leg-flightnum-${n}`),
+          baggage: gv(`leg-baggage-${n}`),
+          fromCity: gv(`leg-from-city-${n}`),
+          toCity: gv(`leg-to-city-${n}`),
+          fromAirport: gv(`leg-from-airport-${n}`),
+          toAirport: gv(`leg-to-airport-${n}`),
+          fromIata: gv(`leg-from-iata-${n}`),
+          toIata: gv(`leg-to-iata-${n}`),
+          depTime: gv(`leg-dep-time-${n}`),
+          arrTime: gv(`leg-arr-time-${n}`),
+          depDate: gv(`leg-dep-date-${n}`),
+          arrDate: gv(`leg-arr-date-${n}`)
+        };
+      }),
+      important: gv('f-important'),
+      facilities: collectFacilities()
+    };
+  }
+  else if (currentType === 'train') {
+    return {
+      id: gv('t-booking-id'),
+      dateIssued: gv('t-date-issued'),
+      ecode: gv('t-ecode'),
+      fromCity: gv('t-from-city'),
+      toCity: gv('t-to-city'),
+      trainName: gv('t-train-name'),
+      trainClass: gv('t-class'),
+      fromStation: gv('t-from-station'),
+      toStation: gv('t-to-station'),
+      depTime: gv('t-dep-time'),
+      arrTime: gv('t-arr-time'),
+      depDate: gv('t-dep-date'),
+      arrDate: gv('t-arr-date'),
+      amount: gv('t-total'),
+      important: gv('t-important'),
+      client: (collectPassengers(true, false, true)[0]?.name || 'N/A'),
+      passengers: collectPassengers(true, false, true),
+      facilities: collectFacilities()
+    };
+  }
+  else if (currentType === 'bus') {
+    return {
+      id: gv('b-booking-id'),
+      dateIssued: gv('b-date-issued'),
+      ecode: gv('b-ecode'),
+      fromCity: gv('b-from-city'),
+      toCity: gv('b-to-city'),
+      operator: gv('b-operator'),
+      busClass: gv('b-class'),
+      fromTerminal: gv('b-from-terminal'),
+      toTerminal: gv('b-to-terminal'),
+      depTime: gv('b-dep-time'),
+      arrTime: gv('b-arr-time'),
+      depDate: gv('b-dep-date'),
+      amount: gv('b-total'),
+      important: gv('b-important'),
+      client: (collectPassengers(true, false, true)[0]?.name || 'N/A'),
+      passengers: collectPassengers(true, false, true),
+      facilities: collectFacilities()
+    };
+  }
+  else if (currentType === 'hotel') {
+    return {
+      id: gv('h-booking-id'),
+      dateIssued: gv('h-date-issued'),
+      ref: gv('h-ref'),
+      name: gv('h-name'),
+      address: gv('h-address'),
+      city: gv('h-city'),
+      roomType: gv('h-room-type'),
+      roomCount: gv('h-room-count'),
+      mealPlan: gv('h-meal-plan'),
+      checkin: gv('h-checkin'),
+      checkout: gv('h-checkout'),
+      nights: gv('h-nights'),
+      phone: gv('h-phone'),
+      amount: gv('h-total'),
+      important: gv('h-important'),
+      client: (collectPassengers(false)[0]?.name || 'N/A'),
+      passengers: collectPassengers(false),
+      facilities: collectFacilities()
+    };
+  }
+  else if (currentType === 'invoice') {
+    const items = [];
+    document.querySelectorAll('[id^="pax-name-"]').forEach(el => {
+      const n = el.id.split('-').pop();
+      if (!document.getElementById(`pax-${n}`)) return;
+      items.push({
+        name: gv(`pax-name-${n}`),
+        carrier: gv(`pax-carrier-${n}`),
+        ticket: gv(`pax-ticket-${n}`),
+        date: gv(`pax-date-${n}`),
+        price: gv(`pax-price-${n}`)
+      });
+    });
+    return {
+      id: gv('inv-idx'),
+      date: gv('inv-date'),
+      client: gv('inv-to'),
+      bankName: gv('inv-bank-name'),
+      bankAcc: gv('inv-bank-acc'),
+      signName: gv('inv-sign-name'),
+      items: items,
+      amount: items.reduce((sum, it) => sum + (parseFloat(it.price) || 0), 0)
+    };
+  }
+  // Fallback
+  return { id: genBookingId(), client: 'Unknown', amount: 0 };
+}
+
+// Ensure history loads on start
+window.onload = () => {
+  pullFromSheet();
+};
+
 
 // ─ FLIGHT TICKET ─
 function buildFlightTicket() {
@@ -1062,6 +1454,7 @@ function buildFlightTicket() {
       <div class="t-leg">
         <div class="t-leg-row">
           <div class="t-leg-airline">
+            ${getAirlineLogo(airline)}
             <div>
               <div class="airline-code">${airline}</div>
               <div class="flight-num">${flightNum}</div>
