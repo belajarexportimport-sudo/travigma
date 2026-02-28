@@ -598,26 +598,23 @@ body {
   z-index: 2;
 }
 
-/* Watermark */
+/* Watermark – HTML element di dalam ticket-inner */
 .t-watermark {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-30deg);
-  opacity: 0.05;
-  z-index: 1;
+  transform: translate(-50%, -50%);
+  z-index: 10;
   pointer-events: none;
-  width: 500px;
-  height: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  opacity: 0.25;
+  width: 400px;
 }
 
 .t-watermark img {
   width: 100%;
   height: auto;
-  filter: grayscale(100%);
+  display: block;
+  mix-blend-mode: multiply;
 }
 
 /* Ticket header */
@@ -973,10 +970,33 @@ body {
     border-radius: 0 !important;
     width: 100% !important;
     border: none !important;
+    position: relative !important;
+    overflow: visible !important;
   }
 
   .ticket-page::before {
     border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Watermark HTML element — tetap tampil saat print */
+  .t-watermark {
+    display: block !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 450px !important;
+    opacity: 0.18 !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+  }
+
+  .t-watermark img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }

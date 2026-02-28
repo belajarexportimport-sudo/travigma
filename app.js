@@ -816,8 +816,8 @@ function ticketHeader(bookingId, dateIssuedRaw, extraRows = '') {
   const dateValue = dateIssuedRaw || new Date().toISOString().split('T')[0];
   const fmtIssued = fmtDate(dateValue) || today();
   return `
-  <div class="t-watermark">${LOGO_IMG}</div>
   <div class="ticket-inner">
+    <div class="t-watermark"><img src="bag_watermark.png" alt="Travigma"></div>
     <div class="t-header">
       <div>
         <div class="t-logo-area">
