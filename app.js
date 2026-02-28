@@ -936,33 +936,33 @@ function buildInvoiceTicket() {
   const items = [];
   document.querySelectorAll('[id^="pax-name-"]').forEach(el => {
     const n = el.id.split('-').pop();
-    if (!document.getElementById(`pax - ${n} `)) return;
+    if (!document.getElementById(`pax-${n}`)) return;
     items.push({
-      name: gv(`pax - name - ${n} `),
-      carrier: gv(`pax - carrier - ${n} `),
-      ticket: gv(`pax - ticket - ${n} `),
-      date: gv(`pax - date - ${n} `),
-      price: parseFloat(gv(`pax - price - ${n} `)) || 0
+      name: gv(`pax-name-${n}`),
+      carrier: gv(`pax-carrier-${n}`),
+      ticket: gv(`pax-ticket-${n}`),
+      date: gv(`pax-date-${n}`),
+      price: parseFloat(gv(`pax-price-${n}`)) || 0
     });
   });
 
   const total = items.reduce((sum, it) => sum + it.price, 0);
 
   let rowsHtml = items.map((it, i) => `
-    < tr >
+    <tr>
       <td>${i + 1}</td>
       <td>${it.name}</td>
       <td>${it.carrier}</td>
       <td>${it.ticket}</td>
       <td>${it.date}</td>
       <td style="text-align:right">Rp ${formatCurrency(it.price)}</td>
-    </tr >
+    </tr>
     `).join('');
 
   return `
   <div class="ticket-page">
-    <div class="t-watermark">${LOGO_IMG}</div>
     <div class="ticket-inner">
+      <div class="t-watermark"><img src="bag_watermark.png" alt="Travigma"></div>
       <div class="t-header">
         <div>
           <div class="t-logo-area">
@@ -1024,6 +1024,7 @@ function buildInvoiceTicket() {
     </div>
   </div>`;
 }
+
 
 function collectPassengers(hasId = true, hasClass = false, hasSeat = false) {
   const passengers = [];
