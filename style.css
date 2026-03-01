@@ -950,8 +950,11 @@ body {
     margin: 10mm;
   }
 
-  body {
+  body, html, #app, .screen {
     background: white !important;
+    height: auto !important;
+    min-height: auto !important;
+    display: block !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -962,6 +965,9 @@ body {
 
   #screen-preview {
     background: white !important;
+    display: block !important;
+    min-height: auto !important;
+    height: auto !important;
   }
 
   .ticket-page {
