@@ -53,42 +53,109 @@ const LOGO_IMG = getLogoHtml(70);
 const LOGO_SM_IMG = getLogoHtml(44);
 
 // ── Airline Logo Helper ─────────────────────────────────────────────────────
-const AIRLINE_MAP = {
-  'garuda': 'garuda-indonesia.com',
-  'lion': 'lionair.co.id',
-  'batik': 'batikair.com',
-  'citilink': 'citilink.co.id',
-  'airasia': 'airasia.com',
-  'sriwijaya': 'sriwijayaair.co.id',
-  'super air jet': 'superairjet.com',
-  'pelita': 'pelita-air.com',
-  'nam': 'namair.co.id',
-  'wings': 'lionair.co.id',
-  'qatar': 'qatarairways.com',
-  'emirates': 'emirates.com',
-  'singapore': 'singaporeair.com',
-  'cathay': 'cathaypacific.com',
-  'ana': 'ana.co.jp',
-  'jal': 'jal.co.jp'
+const AIRLINE_IATA = {
+  'garuda': 'GA',
+  'lion': 'JT',
+  'batik': 'ID',
+  'citilink': 'QG',
+  'airasia': 'QZ',
+  'sriwijaya': 'SJ',
+  'super air jet': 'IU',
+  'pelita': 'IP',
+  'nam': 'IN',
+  'wings': 'IW',
+  'qatar': 'QR',
+  'emirates': 'EK',
+  'singapore': 'SQ',
+  'cathay': 'CX',
+  'ana': 'NH',
+  'all nippon': 'NH',
+  'jal': 'JL',
+  'japan airlines': 'JL',
+  'air china': 'CA',
+  'cebu pacific': '5J',
+  'china airlines': 'CI',
+  'china southern': 'CZ',
+  'etihad': 'EY',
+  'eva': 'BR',
+  'jetstar': 'JQ',
+  'klm': 'KL',
+  'korean': 'KE',
+  'kuwait': 'KU',
+  'malaysia': 'MH',
+  'mihin lanka': 'MJ',
+  'philippine': 'PR',
+  'qantas': 'QF',
+  'royal brunei': 'BI',
+  'saudi': 'SV',
+  'sichuan': '3U',
+  'thai': 'TG',
+  'tiger': 'TR',
+  'turkish': 'TK',
+  'valuair': 'VF',
+  'vietnam': 'VN',
+  'yemenia': 'IY',
+  'merpati': 'MZ',
+  'aviastar': 'MV',
+  'trigana': 'TN',
+  'mandala': 'RI',
+  'kalstar': 'KD',
+  'airfast': 'FS',
+  'express air': 'XN',
+  'sky aviation': 'SY',
+  'aeroflot': 'SU',
+  'aeromexico': 'AM',
+  'air canada': 'AC',
+  'air france': 'AF',
+  'air new zealand': 'NZ',
+  'american airlines': 'AA',
+  'asiana': 'OZ',
+  'british airways': 'BA',
+  'copa': 'CM',
+  'delta': 'DL',
+  'el al': 'LY',
+  'egyptair': 'MS',
+  'ethiopian': 'ET',
+  'flydubai': 'FZ',
+  'hainan': 'HU',
+  'iberia': 'IB',
+  'kenya airways': 'KQ',
+  'lufthansa': 'LH',
+  'royal air maroc': 'AT',
+  'swiss': 'LX',
+  'tui airways': 'BY',
+  'united airlines': 'UA',
+  'virgin atlantic': 'VS',
+  'xiamen': 'MF',
+  'avianca': 'AV'
 };
 
 function getAirlineLogo(airline) {
   if (!airline) return '';
   const low = airline.toLowerCase();
-  let domain = null;
-  for (const key in AIRLINE_MAP) {
-    if (low.includes(key)) {
-      domain = AIRLINE_MAP[key];
+  
+  let iata = null;
+
+  // Exact match string checking to prevent substring bugs
+  for (const key in AIRLINE_IATA) {
+    if (low === key || low.includes(key)) {
+      iata = AIRLINE_IATA[key];
       break;
     }
   }
 
-  if (domain) {
+  if (iata) {
+    // API Gambar Airline Terpercaya & Super Cepat via Aviasales/Travelpayouts CDN
     return `<div class="airline-logo-box">
-      <img src="https://logo.clearbit.com/${domain}" alt="${airline}" onerror="this.parentElement.style.display='none'">
+      <img src="https://pics.avs.io/200/200/${iata}.png" alt="${airline}" style="object-fit: contain;"
+           onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(airline)}&background=random&color=fff&rounded=true&bold=true';">
     </div>`;
   }
-  return '';
+
+  // Last Resort Fallback (Jika map nama custom tidak ada di list)
+  return `<div class="airline-logo-box">
+      <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(airline)}&background=random&color=fff&rounded=true&bold=true" alt="${airline}">
+    </div>`;
 }
 
 

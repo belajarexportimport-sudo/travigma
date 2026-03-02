@@ -774,27 +774,44 @@ body {
 
 .t-leg-row {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 8px;
+  display: flex;
   align-items: center;
+  gap: 20px;
 }
 
 .t-leg-airline {
+  flex: 0 0 100px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.t-leg-airline .airline-code {
+.airline-logo-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.airline-logo-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.airline-code {
   font-weight: 700;
-  font-size: 13px;
-  color: var(--orange);
+  font-size: 0.95rem;
+  text-transform: capitalize;
 }
 
-.t-leg-airline .flight-num {
-  font-size: 12px;
-  color: var(--navy);
-  font-weight: 600;
+.flight-num {
+  font-size: 0.8rem;
+  color: var(--gray-text);
+  margin-top: 2px;
+  text-transform: uppercase;
 }
 
 .t-leg-route {
