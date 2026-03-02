@@ -950,13 +950,22 @@ body {
     margin: 10mm;
   }
 
-  body, html, #app, .screen {
+  body, html, #app {
     background: white !important;
     height: auto !important;
     min-height: auto !important;
     display: block !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  .screen {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .screen.active {
+    display: block !important;
   }
 
   .no-print {
