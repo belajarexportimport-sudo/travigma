@@ -279,7 +279,10 @@ function passengerRowInvoice(n) {
 function formFlight() {
   return `
   <div class="form-section">
-    <h3>📋 Booking Info</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="margin: 0;">📋 Booking Info</h3>
+      <button onclick="fillDummyFlight()" style="background-color: #f59e0b; color: white; padding: 5px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500;">⚡ Isi Data Cepat (Testing)</button>
+    </div>
     <div class="form-grid">
       <div class="form-group">
         <label>Travigma Booking ID</label>
@@ -873,6 +876,42 @@ function generateTicket() {
   document.getElementById('screen-preview').classList.add('active');
 }
 
+// ── Dummy Data Injector ───────────────────────────────────────────────────────
+function fillDummyFlight() {
+  function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
+  
+  sv('f-pnr', 'XYZ987');
+  sv('f-pnr-return', 'ABC123');
+  sv('f-total', '2.500.000');
+  
+  sv('pax-name-1', 'Bapak Testing Terbang');
+  sv('pax-cat-1', 'Dewasa');
+  sv('pax-class-1', 'Economy');
+  sv('pax-ticket-1', '999123456');
+
+  sv('leg-airline-1', 'Citilink');
+  sv('leg-flightnum-1', 'QG-999');
+  sv('leg-baggage-1', '20 Kg');
+  sv('leg-from-city-1', 'Jakarta');
+  sv('leg-to-city-1', 'Bali');
+  sv('leg-from-airport-1', 'Soekarno Hatta Airport');
+  sv('leg-to-airport-1', 'Ngurah Rai Airport');
+  sv('leg-from-iata-1', 'CGK');
+  sv('leg-to-iata-1', 'DPS');
+  
+  // Set date times relative to today
+  const today = new Date();
+  const tmr = new Date(today); tmr.setDate(tmr.getDate() + 1);
+  const ds = tmr.toISOString().split('T')[0];
+  
+  sv('leg-dep-date-1', ds);
+  sv('leg-arr-date-1', ds);
+  sv('leg-dep-time-1', '08:00');
+  sv('leg-arr-time-1', '10:30');
+  
+  sv('fac-text-1', '20 Kg Baggage, Meals Included');
+}
+
 // ─ Shared helpers ─
 function gv(id) {
   const el = document.getElementById(id);
@@ -889,9 +928,6 @@ function ticketHeader(bookingId, dateIssuedRaw, extraRows = '') {
       <div>
         <div class="t-logo-area">
           <div class="t-logo-circle">${LOGO_IMG}</div>
-          <div>
-            <div class="t-brand-name">Trav<em>igma</em><sup style="font-size:9px">®</sup></div>
-          </div>
         </div>
         <div class="t-meta" style="margin-top:10px;">
           <table>
@@ -1512,6 +1548,8 @@ function buildFlightTicket() {
 
   let legsHtml = '';
   const seenLegs = new Set();
+  const allBaggages = [];
+  
   document.querySelectorAll('.leg-card').forEach(card => {
     const n = card.id.split('-').pop();
     if (seenLegs.has(n)) return;
@@ -1529,6 +1567,8 @@ function buildFlightTicket() {
     const fromAirport = gv(`leg-from-airport-${n}`);
     const toAirport = gv(`leg-to-airport-${n}`);
     const baggage = gv(`leg-baggage-${n}`);
+    
+    if (baggage) allBaggages.push(baggage);
 
     legsHtml += `
       <div class="t-section-label">✈️ Flight Detail</div>
@@ -1558,13 +1598,43 @@ function buildFlightTicket() {
             </div>
           </div>
         </div>
-        ${baggage ? `<div style="margin-top:8px;font-size:10.5px;color:#555;">Bagasi Terdaftar ${airline}: <strong>${baggage}</strong></div>` : ''}
       </div>`;
   });
 
   let extraRows = '';
   if (pnr) extraRows += `<tr><td>Airline Booking Code (PNR)</td><td>: <strong>${pnr}</strong></td></tr>`;
   if (pnrReturn) extraRows += `<tr><td>Airline Booking Code (PNR) Return</td><td>: <strong>${pnrReturn}</strong></td></tr>`;
+
+  // Custom Flight Facilities Block combining "Bagasi Kabin" (from facs) and "Bagasi Terdaftar" (from legs)
+  let flightFacilitiesHtml = '';
+  if (facs.length > 0 || allBaggages.length > 0) {
+    let kabinHtml = '';
+    if (facs.length > 0) {
+      kabinHtml = `
+        <div style="font-weight:600; margin-bottom: 4px; color: var(--navy);">Bagasi Kabin:</div>
+        <ul style="margin: 0 0 12px 0; padding-left: 20px; font-size: 11px; color: #333; list-style-type: disc;">
+          ${facs.map(f => `<li>${f}</li>`).join('')}
+        </ul>`;
+    }
+    
+    let terdaftarHtml = '';
+    if (allBaggages.length > 0) {
+      // remove duplicates if same baggage string across legs
+      const uniqueBaggages = [...new Set(allBaggages)];
+      terdaftarHtml = `
+        <div style="font-weight:600; margin-bottom: 4px; color: var(--navy);">Bagasi Terdaftar:</div>
+        <ul style="margin: 0; padding-left: 20px; font-size: 11px; color: #333; list-style-type: disc;">
+          ${uniqueBaggages.map(b => `<li>${b}</li>`).join('')}
+        </ul>`;
+    }
+
+    flightFacilitiesHtml = `
+      <div class="t-section-label">Flight Facilities</div>
+      <div style="margin: 10px 0 15px 0;">
+        ${kabinHtml}
+        ${terdaftarHtml}
+      </div>`;
+  }
 
   return `<div class="ticket-page">
     ${ticketHeader(bookingId, dateIssued, extraRows)}
@@ -1573,7 +1643,7 @@ function buildFlightTicket() {
     <hr class="t-divider">
     ${legsHtml}
     <hr class="t-divider">
-    ${facilitiesBlock(facs)}
+    ${flightFacilitiesHtml}
     ${paymentBlock(total, 'Total Cost')}
     ${importantBlock(important)}
     ${ticketFooter()}
