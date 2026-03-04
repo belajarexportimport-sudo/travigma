@@ -586,8 +586,8 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  bottom: 0;
-  width: 8px;
+  bottom: 50%;
+  width: 16px;
   background: var(--orange);
   border-radius: 4px 0 0 4px;
 }
@@ -634,14 +634,18 @@ body {
 .t-logo-circle {
   border-radius: 50%;
   overflow: hidden;
-  width: 70px;
-  height: 70px;
+  width: 100px;
+  height: 100px;
   background: var(--blue-light);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 3px solid var(--blue-light);
+  border: 1px solid var(--navy);
+}
+
+.t-logo-circle img {
+  border-radius: 50%;
 }
 
 .t-brand-name {
@@ -967,7 +971,9 @@ body {
     margin: 10mm;
   }
 
-  body, html, #app {
+  body,
+  html,
+  #app {
     background: white !important;
     height: auto !important;
     min-height: auto !important;

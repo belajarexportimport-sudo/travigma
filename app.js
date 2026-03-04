@@ -49,7 +49,7 @@ function getLogoHtml(width = 70) {
   return `<img src="logo.png" width="${width}" alt="Travigma Logo">`;
 }
 
-const LOGO_IMG = getLogoHtml(70);
+const LOGO_IMG = getLogoHtml(100);
 const LOGO_SM_IMG = getLogoHtml(44);
 
 // ── Airline Logo Helper ─────────────────────────────────────────────────────
@@ -133,7 +133,7 @@ const AIRLINE_IATA = {
 function getAirlineLogo(airline) {
   if (!airline) return '';
   const low = airline.toLowerCase();
-  
+
   let iata = null;
 
   // Exact match string checking to prevent substring bugs
@@ -879,11 +879,11 @@ function generateTicket() {
 // ── Dummy Data Injector ───────────────────────────────────────────────────────
 function fillDummyFlight() {
   function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
-  
+
   sv('f-pnr', 'XYZ987');
   sv('f-pnr-return', 'ABC123');
   sv('f-total', '2.500.000');
-  
+
   sv('pax-name-1', 'Bapak Testing Terbang');
   sv('pax-cat-1', 'Dewasa');
   sv('pax-class-1', 'Economy');
@@ -898,17 +898,17 @@ function fillDummyFlight() {
   sv('leg-to-airport-1', 'Ngurah Rai Airport');
   sv('leg-from-iata-1', 'CGK');
   sv('leg-to-iata-1', 'DPS');
-  
+
   // Set date times relative to today
   const today = new Date();
   const tmr = new Date(today); tmr.setDate(tmr.getDate() + 1);
   const ds = tmr.toISOString().split('T')[0];
-  
+
   sv('leg-dep-date-1', ds);
   sv('leg-arr-date-1', ds);
   sv('leg-dep-time-1', '08:00');
   sv('leg-arr-time-1', '10:30');
-  
+
   sv('fac-text-1', '20 Kg Baggage, Meals Included');
 }
 
@@ -1549,7 +1549,7 @@ function buildFlightTicket() {
   let legsHtml = '';
   const seenLegs = new Set();
   const allBaggages = [];
-  
+
   document.querySelectorAll('.leg-card').forEach(card => {
     const n = card.id.split('-').pop();
     if (seenLegs.has(n)) return;
@@ -1567,7 +1567,7 @@ function buildFlightTicket() {
     const fromAirport = gv(`leg-from-airport-${n}`);
     const toAirport = gv(`leg-to-airport-${n}`);
     const baggage = gv(`leg-baggage-${n}`);
-    
+
     if (baggage) allBaggages.push(baggage);
 
     legsHtml += `
@@ -1616,7 +1616,7 @@ function buildFlightTicket() {
           ${facs.map(f => `<li>${f}</li>`).join('')}
         </ul>`;
     }
-    
+
     let terdaftarHtml = '';
     if (allBaggages.length > 0) {
       // remove duplicates if same baggage string across legs
