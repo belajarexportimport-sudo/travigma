@@ -62,13 +62,20 @@ body {
 .logo-circle {
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-  background: var(--blue-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 90px;
-  height: 90px;
+  background: #acd8f0;
+  width: 140px;
+  height: 140px;
+  box-shadow: inset 0 0 0 8px #acd8f0;
+}
+
+.logo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .logo-circle.sm {
@@ -634,18 +641,21 @@ body {
 .t-logo-circle {
   border-radius: 50%;
   overflow: hidden;
-  width: 100px;
-  height: 100px;
-  background: var(--blue-light);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border: 1px solid var(--navy);
+  background: #acd8f0;
+  width: 155px;
+  height: 155px;
+  box-shadow: inset 0 0 0 8px #acd8f0;
 }
 
 .t-logo-circle img {
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .t-brand-name {

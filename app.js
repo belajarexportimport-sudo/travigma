@@ -49,7 +49,7 @@ function getLogoHtml(width = 70) {
   return `<img src="logo.png" width="${width}" alt="Travigma Logo">`;
 }
 
-const LOGO_IMG = getLogoHtml(100);
+const LOGO_IMG = getLogoHtml(140);
 const LOGO_SM_IMG = getLogoHtml(44);
 
 // ── Airline Logo Helper ─────────────────────────────────────────────────────
