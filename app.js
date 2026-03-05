@@ -1087,7 +1087,7 @@ function buildInvoiceTicket() {
         <div>
           <div class="t-logo-area">
             <div class="t-logo-circle">${LOGO_IMG}</div>
-            <div class="t-brand-name">Trav<em>igma</em><sup style="font-size:9px">®</sup></div>
+
           </div>
           <div class="t-meta" style="margin-top:10px">
             <table>
