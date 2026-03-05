@@ -127,18 +127,35 @@ const AIRLINE_IATA = {
   'united airlines': 'UA',
   'virgin atlantic': 'VS',
   'xiamen': 'MF',
-  'avianca': 'AV'
+  'avianca': 'AV',
+  'pelita': 'IP',
+  'pelita air': 'IP',
+  'transnusa': '8B'
 };
 
 function getAirlineLogo(airline) {
   if (!airline) return '';
   const low = airline.toLowerCase();
 
+  if (low.includes('pelita')) {
+    return `<div class="airline-logo-box">
+      <img src="https://images.kiwi.com/airlines/64/IP.png" alt="Pelita Air" style="object-fit: contain; width: 100%; height: 100%;"
+           onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Pelita+Air&background=random&color=fff&rounded=true&bold=true';">
+    </div>`;
+  }
+
+  if (low === 'transnusa' || low.includes('transnusa')) {
+    return `<div class="airline-logo-box">
+      <img src="https://images.kiwi.com/airlines/64/8B.png" alt="TransNusa" style="object-fit: contain; width: 100%; height: 100%;"
+           onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=TransNusa&background=random&color=fff&rounded=true&bold=true';">
+    </div>`;
+  }
+
   let iata = null;
 
   // Exact match string checking to prevent substring bugs
   for (const key in AIRLINE_IATA) {
-    if (low === key || low.includes(key)) {
+    if (low === key || (low.includes(key) && key.length > 2)) {
       iata = AIRLINE_IATA[key];
       break;
     }
